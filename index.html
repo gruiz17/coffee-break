@@ -1,0 +1,72 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>breakout</title>
+  <meta name="description" content="Breakout/Arkanoid in CoffeeScript">
+  <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+  <style>
+    body {
+      font-family: 'Press Start 2P';
+      background-color: #000000;
+      color: #ffffff;
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    a {
+      color: #00ffff;
+    }
+
+    #gamebox {
+      margin: 30 auto;
+      max-width: 500px;
+    }
+
+    #info {
+      padding-bottom: 20px;
+    }
+
+    #lives {
+      float: left;
+    }
+
+    #level {
+      float: right;
+    }
+
+    canvas {
+      border: 1px solid #ffffff;
+      margin: 5 auto;
+      display: block;
+      height: 500px;
+      width: 500px;
+    }
+
+    #heading {
+      margin: 10 auto;
+      line-height: 5px;
+    }
+    #footer {
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="heading">
+    <h1>Coffee Break</h1>
+    <p>by Gabriel Ruiz</p>
+  </div>
+  <hr>
+  <div id="gamebox">
+    <div id="info">
+      <span id="lives">Lives: <3 <3 <3 </span><span id="level">Level: 1</span>
+    </div>
+    <canvas id="game">
+    </canvas>
+  </div>
+  <hr>
+  <div id="footer">
+    <p>made with love and CoffeeScript. Source code <a href="http//github.com/gruiz17/coffee-break">here</a>.</p>
+  </div>
+</body>
+</html>
