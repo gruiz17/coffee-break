@@ -50,6 +50,7 @@
       font-size: 10px;
     }
   </style>
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 </head>
 <body>
   <div id="heading">
@@ -59,7 +60,8 @@
   <hr>
   <div id="gamebox">
     <div id="info">
-      <span id="lives">Lives: <3 <3 <3 </span><span id="level">Level: 1</span>
+      <span id="lives">Lives: <span id="lifecount"></span></span>
+      <span id="level">Level: <span id="levelcount">1</span></span>
     </div>
     <canvas id="game">
     </canvas>
@@ -68,5 +70,15 @@
   <div id="footer">
     <p>made with love and CoffeeScript. Source code <a href="http//github.com/gruiz17/coffee-break">here</a>.</p>
   </div>
+  <script>
+    var canvas = $('#game');
+    canvas.mousemove(function(e) {
+      var x = e.pageX;
+      console.log('page X = ' + x);
+    });
+    canvas.click(function(e) {
+      $('#lifecount').append("<3 ");
+    });
+  </script>
 </body>
 </html>
