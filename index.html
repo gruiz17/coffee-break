@@ -17,13 +17,15 @@
       color: #00ffff;
     }
 
-    #gamebox {
-      margin: 30 auto;
-      max-width: 500px;
+    #heading {
+      margin: 10 auto;
+      line-height: 5px;
     }
 
     #info {
-      padding-bottom: 20px;
+      margin: 20 auto;
+      max-width: 550px;
+      padding-bottom: 5px;
     }
 
     #lives {
@@ -36,16 +38,10 @@
 
     canvas {
       border: 1px solid #ffffff;
-      margin: 5 auto;
+      margin: 10px auto 0 auto;
       display: block;
-      height: 500px;
-      width: 500px;
     }
 
-    #heading {
-      margin: 10 auto;
-      line-height: 5px;
-    }
     #footer {
       font-size: 10px;
     }
@@ -58,11 +54,11 @@
     <p>by Gabriel Ruiz</p>
   </div>
   <hr>
-  <div id="gamebox">
-    <div id="info">
-      <span id="lives">Lives: <span id="lifecount"></span></span>
-      <span id="level">Level: <span id="levelcount">1</span></span>
-    </div>
+  <div id="info">
+    <span id="lives">Lives: <span id="lifecount"></span></span>
+    <span id="level">Level: <span id="levelcount">1</span></span>
+  </div>
+  <div id="main">
     <canvas id="game">
     </canvas>
   </div>
@@ -70,15 +66,6 @@
   <div id="footer">
     <p>made with love and CoffeeScript. Source code <a href="http//github.com/gruiz17/coffee-break">here</a>.</p>
   </div>
-  <script>
-    var canvas = $('#game');
-    canvas.mousemove(function(e) {
-      var x = e.pageX;
-      console.log('page X = ' + x);
-    });
-    canvas.click(function(e) {
-      $('#lifecount').append("<3 ");
-    });
-  </script>
+  <script src="js/break.js"></script>
 </body>
 </html>
