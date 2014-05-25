@@ -29,6 +29,7 @@ class Ball
     @xSpeed = 4
     @ySpeed = 4
     @direction = "lu"
+    @dead = false
 
   draw: ->
     ctx.fillStyle = "#00ffff"
@@ -53,6 +54,11 @@ class Ball
       @centerX += @xSpeed
       @centerY += @ySpeed
 
+  die: ->
+    @dead = true
+    @xSpeed = 0
+    @ySpeed = 0
+
 class Block
   constructor: (posX, posY, color) ->
     @width = 50
@@ -66,20 +72,44 @@ class Block
     @destroyed = true
 
   draw: ->
-    ctx.fillStyle = @color
-    ctx.strokeStyle = "#ffffff"
-    ctx.lineWidth = 1
-    ctx.strokeRect(@posX, @posY, @width, @height)
-    ctx.fillRect(@posX, @posY, @width, @height)
+    if @destroyed == false
+      ctx.fillStyle = @color
+      ctx.strokeStyle = "#ffffff"
+      ctx.lineWidth = 1
+      ctx.strokeRect(@posX, @posY, @width, @height)
+      ctx.fillRect(@posX, @posY, @width, @height)
 
-ballCollides = (b, rect) ->
+ballOnEdge = (b) ->
+  if b.centerX - b.radius < 0
+    if b.direction == "lu"
+      b.direction = "ru"
+    else if b.direction == "ld"
+      b.direction = "rd"
+  if b.centerX + b.radius > 550
+    if b.direction == "ru"
+      b.direction = "lu"
+    else if b.direction == "rd"
+      b.direction = "ld"
+  if b.centerY - b.radius < 0
+    if b.direction == "lu"
+      b.direction = "ld"
+    else if b.direction == "ru"
+      b.direction = "rd"
+  if b.centerY + b.radius > 550
+    ball.die()
+
+ballCollides = (b, block) ->
 
 
+handleCollisions = (b) ->
+  ballOnEdge(b)
 
 bat = new Bat()
 ball = new Ball(bat)
 
-GAME_START = false
+window.GAME_START = false
+window.LIVES = 3
+window.LEVEL = 1
 
 initializeBlocks = () ->
   blockArray = []
@@ -103,8 +133,9 @@ initializeBlocks = () ->
 blocks = initializeBlocks()
 
 $('#game').click (e) ->
-  if GAME_START == false
-   GAME_START = true
+  if window.GAME_START == false
+    window.GAME_START = true
+  console.log(e.pageX)
 
 $('#gamebox').mousemove (e) ->
   x = e.pageX - rect.left + 80
@@ -117,11 +148,23 @@ $('#gamebox').mousemove (e) ->
   console.log('bat.x = ' + bat.posX)
 
 update = () ->
-  if GAME_START == false
+  if ball.dead == true
+    window.GAME_START = false
+    window.LIVES -= 1
+  if window.LIVES <= 0
+    window.LIVES = 3
+    window.LEVEL = 1
+
+  if window.GAME_START == false
+    ball.dead = false
     ball.centerX = bat.posX + 45
     ball.centerY = bat.posY - 20
+    ball.xSpeed = 4
+    ball.ySpeed = 4
+    ball.direction = "lu"
   else
     ball.move()
+    handleCollisions(ball)
 
 draw = () ->
   ctx.clearRect(0, 0, 550, 550)
@@ -132,5 +175,6 @@ draw = () ->
 gameLoop = () ->
   update()
   draw()
+  return
 
 setInterval(gameLoop, 1000/FPS)
