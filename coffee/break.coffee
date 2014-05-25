@@ -26,19 +26,32 @@ class Ball
     @radius = 6
     @centerX = bat.posX + 45
     @centerY = bat.posY - 20
-    @speed = 2
+    @xSpeed = 4
+    @ySpeed = 4
+    @direction = "lu"
 
   draw: ->
     ctx.fillStyle = "#00ffff"
     ctx.strokeStyle = "#ffffff"
     ctx.lineWidth = 1.5
-
     ctx.beginPath()
     ctx.arc(@centerX, @centerY, @radius, 0, 2 * Math.PI, false)
     ctx.fill()
     ctx.stroke()
 
-
+  move: ->
+    if @direction == "lu"
+      @centerX -= @xSpeed
+      @centerY -= @ySpeed
+    else if @direction == "ru"
+      @centerX += @xSpeed
+      @centerY -= @ySpeed
+    else if @direction == "ld"
+      @centerX -= @xSpeed
+      @centerY += @ySpeed
+    else if @direction == "rd"
+      @centerX += @xSpeed
+      @centerY += @ySpeed
 
 class Block
   constructor: (posX, posY, color) ->
@@ -59,11 +72,12 @@ class Block
     ctx.strokeRect(@posX, @posY, @width, @height)
     ctx.fillRect(@posX, @posY, @width, @height)
 
+ballCollides = (b, rect) ->
+
+
 
 bat = new Bat()
 ball = new Ball(bat)
-
-# block = new Block(0,200)
 
 GAME_START = false
 
@@ -88,10 +102,9 @@ initializeBlocks = () ->
 
 blocks = initializeBlocks()
 
-
 $('#game').click (e) ->
-  $('#lifecount').append("<3 ")
-  return
+  if GAME_START == false
+   GAME_START = true
 
 $('#gamebox').mousemove (e) ->
   x = e.pageX - rect.left + 80
@@ -107,6 +120,8 @@ update = () ->
   if GAME_START == false
     ball.centerX = bat.posX + 45
     ball.centerY = bat.posY - 20
+  else
+    ball.move()
 
 draw = () ->
   ctx.clearRect(0, 0, 550, 550)
