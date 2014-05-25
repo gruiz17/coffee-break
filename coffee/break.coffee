@@ -28,12 +28,12 @@ $('#game').click (e) ->
   $('#lifecount').append("<3 ")
   return
 
-$('#game').mousemove (e) ->
+$('#gamebox').mousemove (e) ->
   x = e.pageX - rect.left + 80
-  if x <= 0
+  if e.pageX + 80 < rect.left
     bat.posX = 0
-  else if x >= canvas.width - bat.width
-    bat.posx = canvas.width - bat.width
+  else if e.pageX - 80 > rect.right
+    bat.posX = canvas.width - bat.width
   else
     bat.posX = x
   console.log('bat.x = ' + bat.posX)
