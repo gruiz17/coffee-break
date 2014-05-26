@@ -1,12 +1,8 @@
-$ = jQuery
-FPS = 100
-canvas = document.getElementById('game')
-rect = canvas.getBoundingClientRect()
-
-canvas.width = canvas.height = 550
-
-ctx = canvas.getContext('2d')
-
+# Coffee Break source code
+# by Gabiel Ruiz
+#################
+# classes
+#################
 class Bat
   constructor: ->
     @width = 90
@@ -79,6 +75,9 @@ class Block
       ctx.strokeRect(@posX, @posY, @width, @height)
       ctx.fillRect(@posX, @posY, @width, @height)
 
+#####################
+# collision detection
+#####################
 ballOnEdge = (b) ->
   if b.centerX - b.radius < 0
     if b.direction == "lu"
@@ -98,18 +97,81 @@ ballOnEdge = (b) ->
   if b.centerY + b.radius > 550
     ball.die()
 
-ballCollides = (b, block) ->
+ballHitsBat = (b, bat) ->
+  # if ((bat.posX < b.centerX - b.radius < bat.posX + bat.width) or (bat.posX < b.centerX + b.radius < bat.posX + bat.width)) and (bat.posY < b.centerY + b.radius < bat.posY + bat.height)
+  if (bat.posX < b.centerX < bat.posX + bat.width) and (bat.posY < b.centerY + b.radius < bat.posY + bat.height)
+    if b.direction == "rd"
+      b.direction = "ru"
+    else if b.direction == "ld"
+      b.direction = "lu"
 
+ballHitsBlock = (b, block) ->
+  if !block.destroyed
 
-handleCollisions = (b) ->
+    if block.posX < b.centerX < block.posX + block.width
+      # bottom
+      if (b.centerY - b.radius < block.posY + block.height) and (b.centerY > block.posY + block.height)
+        if b.direction == "ru"
+          b.direction = "rd"
+        else if b.direction == "lu"
+          b.direction = "ld"
+        block.die()
+        window.BLOCK_COUNT -= 1
+      # top
+      if (b.centerY + b.radius > block.posY) and (b.centerY < block.posY)
+        if b.direction == "rd"
+          b.direction = "ru"
+        else if b.direction == "ld"
+          b.direction = "lu"
+        block.die()
+        window.BLOCK_COUNT -= 1
+    else
+      if (block.posY < b.centerY < block.posY + block.height)
+        # left
+        if (b.centerX < block.posX) and (b.centerX + b.radius > block.posX)
+          if b.direction == "ru"
+            b.direction = "lu"
+          else if b.direction == "rd"
+            b.direction = "ld"
+          block.die()
+          window.BLOCK_COUNT -= 1
+        # right
+        if (b.centerX > block.posX + block.width) and (b.centerX - b.radius < block.posX + block.width)
+          if b.direction == "lu"
+            b.direction = "ru"
+          else if b.direction == "ld"
+            b.direction = "rd"
+          block.die()
+          window.BLOCK_COUNT -= 1
+
+handleCollisions = (b, bat, blocks) ->
   ballOnEdge(b)
+  ballHitsBat(b, bat)
+  for block in blocks
+    ballHitsBlock(b, block)
 
-bat = new Bat()
-ball = new Ball(bat)
+###########
+# main game
+###########
+
+$ = jQuery
+FPS = 100
+canvas = document.getElementById('game')
+rect = canvas.getBoundingClientRect()
+
+canvas.width = canvas.height = 550
+
+ctx = canvas.getContext('2d')
 
 window.GAME_START = false
 window.LIVES = 3
 window.LEVEL = 1
+
+document.getElementById('lifecount').innerHTML = window.LIVES
+document.getElementById('levelcount').innerHTML = window.LEVEL
+
+bat = new Bat()
+ball = new Ball(bat)
 
 initializeBlocks = () ->
   blockArray = []
@@ -132,6 +194,8 @@ initializeBlocks = () ->
 
 blocks = initializeBlocks()
 
+window.BALL_COUNT = blocks.length
+
 $('#game').click (e) ->
   if window.GAME_START == false
     window.GAME_START = true
@@ -151,20 +215,21 @@ update = () ->
   if ball.dead == true
     window.GAME_START = false
     window.LIVES -= 1
-  if window.LIVES <= 0
-    window.LIVES = 3
-    window.LEVEL = 1
+    if window.LIVES == 0
+      window.LIVES = 3
+      window.LEVEL = 1
+    document.getElementById('lifecount').innerHTML = window.LIVES
 
   if window.GAME_START == false
     ball.dead = false
     ball.centerX = bat.posX + 45
-    ball.centerY = bat.posY - 20
+    ball.centerY = bat.posY - 500
     ball.xSpeed = 4
     ball.ySpeed = 4
     ball.direction = "lu"
   else
     ball.move()
-    handleCollisions(ball)
+    handleCollisions(ball, bat, blocks)
 
 draw = () ->
   ctx.clearRect(0, 0, 550, 550)
