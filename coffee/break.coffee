@@ -98,7 +98,6 @@ ballOnEdge = (b) ->
     ball.die()
 
 ballHitsBat = (b, bat) ->
-  # if ((bat.posX < b.centerX - b.radius < bat.posX + bat.width) or (bat.posX < b.centerX + b.radius < bat.posX + bat.width)) and (bat.posY < b.centerY + b.radius < bat.posY + bat.height)
   if (bat.posX < b.centerX < bat.posX + bat.width) and (bat.posY < b.centerY + b.radius < bat.posY + bat.height)
     if b.direction == "rd"
       b.direction = "ru"
@@ -164,14 +163,16 @@ canvas.width = canvas.height = 550
 ctx = canvas.getContext('2d')
 
 window.GAME_START = false
+window.ROUND_START = false
 window.LIVES = 3
 window.LEVEL = 1
 
 document.getElementById('lifecount').innerHTML = window.LIVES
 document.getElementById('levelcount').innerHTML = window.LEVEL
+document.getElementById('message').innerHTML = "Click to play!"
 
-bat = new Bat()
-ball = new Ball(bat)
+window.bat = new Bat()
+window.ball = new Ball(bat)
 
 initializeBlocks = () ->
   blockArray = []
@@ -192,50 +193,74 @@ initializeBlocks = () ->
 
   return blockArray
 
-blocks = initializeBlocks()
+window.blocks = initializeBlocks()
 
-window.BALL_COUNT = blocks.length
+window.BLOCK_COUNT = blocks.length
 
 $('#game').click (e) ->
   if window.GAME_START == false
     window.GAME_START = true
-  console.log(e.pageX)
+    window.LIVES = 3
+    window.LEVEL = 1
+    window.ROUND_START = true
+    document.getElementById('lifecount').innerHTML = window.LIVES
+    document.getElementById('levelcount').innerHTML = window.LEVEL
+    document.getElementById('message').innerHTML = ''
+  else
+    if window.ROUND_START == false
+      window.ROUND_START = true
+      document.getElementById('lifecount').innerHTML = window.LIVES
+      document.getElementById('levelcount').innerHTML = window.LEVEL
+      document.getElementById('message').innerHTML = ''
 
 $('#gamebox').mousemove (e) ->
   x = e.pageX - rect.left + 80
   if e.pageX + 80 < rect.left
-    bat.posX = 0
+    window.bat.posX = 0
   else if e.pageX - 80 > rect.right
-    bat.posX = canvas.width - bat.width
+    window.bat.posX = canvas.width - bat.width
   else
-    bat.posX = x
-  console.log('bat.x = ' + bat.posX)
+    window.bat.posX = x
 
 update = () ->
-  if ball.dead == true
-    window.GAME_START = false
+  if window.ball.dead == true
+    window.ROUND_START = false
     window.LIVES -= 1
-    if window.LIVES == 0
-      window.LIVES = 3
-      window.LEVEL = 1
-    document.getElementById('lifecount').innerHTML = window.LIVES
+    if window.LIVES < 0
+      document.getElementById('lifecount').innerHTML = 0
+    else
+      document.getElementById('lifecount').innerHTML = window.LIVES
 
-  if window.GAME_START == false
-    ball.dead = false
-    ball.centerX = bat.posX + 45
-    ball.centerY = bat.posY - 500
-    ball.xSpeed = 4
-    ball.ySpeed = 4
-    ball.direction = "lu"
+  if window.LIVES == 0
+    window.GAME_START = false
+    document.getElementById('message').innerHTML = "You have completely died. Click to play again!"
+    window.blocks = initializeBlocks()
+    window.BLOCK_COUNT = window.blocks.length
   else
-    ball.move()
-    handleCollisions(ball, bat, blocks)
+    if window.BLOCK_COUNT == 0
+      window.ROUND_START = false
+      window.blocks = initializeBlocks()
+      window.BLOCK_COUNT = window.blocks.length
+      window.LEVEL += 1
+      document.getElementById('levelcount').innerHTML = window.LEVEL
+      document.getElementById('message').innerHTML = "Moving to Level " + window.LEVEL + "!"
+
+    if window.ROUND_START == false
+      window.ball.dead = false
+      window.ball.centerX = bat.posX + 45
+      window.ball.centerY = bat.posY - 20
+      window.ball.xSpeed = 4
+      window.ball.ySpeed = 4
+      window.ball.direction = "lu"
+    else
+      window.ball.move()
+      handleCollisions(window.ball, window.bat, window.blocks)
 
 draw = () ->
   ctx.clearRect(0, 0, 550, 550)
-  bat.draw()
-  ball.draw()
-  block.draw() for block in blocks
+  window.bat.draw()
+  window.ball.draw()
+  block.draw() for block in window.blocks
 
 gameLoop = () ->
   update()
