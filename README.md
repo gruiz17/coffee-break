@@ -1,6 +1,7 @@
 # Coffee Break
 
-An Arkanoid-style game I created using CoffeeScript.
+An Arkanoid-style game I created using CoffeeScript. View it [here](http://ggruiz.me/coffee-break
+)!
 
 After all these years I finally actually got into game development.
 
