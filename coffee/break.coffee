@@ -15,15 +15,22 @@ class Bat
   constructor: ->
     @width = 90
     @height = 10
-    @posX = canvas.width/2 - 45
-    @posY = canvas.height - 40
+    @posX = window.canvas.width/2 - 45
+    @posY = window.canvas.height - 40
+    @xVelocity = 0
 
   draw: ->
-    ctx.fillStyle = "rgb(200,0,0)"
-    ctx.strokeStyle = "#ffffff"
-    ctx.lineWidth = 2
-    ctx.strokeRect(@posX, @posY, @width, @height)
-    ctx.fillRect(@posX, @posY, @width, @height)
+    window.ctx.fillStyle = "rgb(200,0,0)"
+    window.ctx.strokeStyle = "#ffffff"
+    window.ctx.lineWidth = 2
+    window.ctx.strokeRect(@posX, @posY, @width, @height)
+    window.ctx.fillRect(@posX, @posY, @width, @height)
+
+  updateVelocity: ->
+    if @xVelocity < 0
+      @xVelocity += 0.9
+    else if @xVelocity > 0
+      @xVelocity -= 0.9
 
 class Ball
   constructor: (bat) ->
@@ -36,13 +43,13 @@ class Ball
     @dead = false
 
   draw: ->
-    ctx.fillStyle = "#00ffff"
-    ctx.strokeStyle = "#ffffff"
-    ctx.lineWidth = 1.5
-    ctx.beginPath()
-    ctx.arc(@centerX, @centerY, @radius, 0, 2 * Math.PI, false)
-    ctx.fill()
-    ctx.stroke()
+    window.ctx.fillStyle = "#00ffff"
+    window.ctx.strokeStyle = "#ffffff"
+    window.ctx.lineWidth = 1.5
+    window.ctx.beginPath()
+    window.ctx.arc(@centerX, @centerY, @radius, 0, 2 * Math.PI, false)
+    window.ctx.fill()
+    window.ctx.stroke()
 
   move: ->
     if @direction == "lu"
@@ -81,11 +88,11 @@ class Block
 
   draw: ->
     if @destroyed == false
-      ctx.fillStyle = @color
-      ctx.strokeStyle = "#ffffff"
-      ctx.lineWidth = 1
-      ctx.strokeRect(@posX, @posY, @width, @height)
-      ctx.fillRect(@posX, @posY, @width, @height)
+      window.ctx.fillStyle = @color
+      window.ctx.strokeStyle = "#ffffff"
+      window.ctx.lineWidth = 1
+      window.ctx.strokeRect(@posX, @posY, @width, @height)
+      window.ctx.fillRect(@posX, @posY, @width, @height)
 
 #####################
 # collision detection
@@ -111,10 +118,25 @@ ballOnEdge = (b) ->
 
 ballHitsBat = (b, bat) ->
   if (bat.posX < b.centerX < bat.posX + bat.width) and (bat.posY < b.centerY + b.radius < bat.posY + bat.height)
-    if b.direction == "rd"
-      b.direction = "ru"
-    else if b.direction == "ld"
+    if b.direction == "rd" and b.xSpeed - bat.xVelocity <= 0
       b.direction = "lu"
+      b.xSpeed = Math.abs(b.xSpeed - bat.xVelocity)
+    else if b.direction == "ld" and (-b.xSpeed) - bat.xVelocity > 0
+      b.direction = "ru"
+      b.xSpeed = Math.abs(-b.xSpeed - bat.xVelocity)
+    else
+      if b.direction == "rd"
+        b.xSpeed -= bat.xVelocity
+      else if b.direction == "ld"
+        b.xSpeed += bat.xVelocity
+      if b.xSpeed > 5
+        b.xSpeed = 5
+      if b.direction == "rd"
+        b.direction = "ru"
+      else if b.direction == "ld"
+        b.direction = "lu"
+    console.log(bat.xVelocity)
+    console.log(b.xSpeed)
     window.batSound.play()
     window.batSound = new Audio('sounds/bat.wav')
 
@@ -169,12 +191,12 @@ handleCollisions = (b, bat, blocks) ->
 
 $ = jQuery
 FPS = 100
-canvas = document.getElementById('game')
-rect = canvas.getBoundingClientRect()
+window.canvas = document.getElementById('game')
+window.rect = window.canvas.getBoundingClientRect()
 
-canvas.width = canvas.height = 550
+window.canvas.width = window.canvas.height = 550
 
-ctx = canvas.getContext('2d')
+window.ctx = window.canvas.getContext('2d')
 
 window.GAME_START = false
 window.ROUND_START = false
@@ -210,8 +232,11 @@ initializeBlocks = () ->
 window.blocks = initializeBlocks()
 
 window.BLOCK_COUNT = blocks.length
+window.previousMouseX = 0
 
 $('#game').click (e) ->
+  window.previousMouseX = e.pageX
+
   if window.GAME_START == false
     window.GAME_START = true
     window.LIVES = 3
@@ -233,15 +258,28 @@ $('#game').click (e) ->
       window.startSound = new Audio('sounds/start.wav')
 
 $('#gamebox').mousemove (e) ->
-  x = e.pageX - rect.left + 80
-  if e.pageX + 80 < rect.left
+  if e.pageX - window.previousMouseX > 5
+    window.bat.xVelocity += 2
+  else if e.pageX - window.previousMouseX < -5
+    window.bat.xVelocity -= 2
+  else
+    if e.pageX < window.previousMouseX
+      window.bat.xVelocity -= 1
+    else if e.pageX > window.previousMouseX
+      window.bat.xVelocity += 1
+  window.previousMouseX = e.pageX
+  x = e.pageX - window.rect.left + 80
+  if e.pageX + 80 < window.rect.left
     window.bat.posX = 0
-  else if e.pageX - 80 > rect.right
-    window.bat.posX = canvas.width - bat.width
+  else if e.pageX - 80 > window.rect.right
+    window.bat.posX = window.canvas.width - window.bat.width
   else
     window.bat.posX = x
 
 update = () ->
+  window.bat.updateVelocity()
+  # console.log(window.bat.xVelocity)
+  console.log(window.ball.direction)
   if window.ball.dead == true
     window.ROUND_START = false
     window.LIVES -= 1
@@ -278,7 +316,7 @@ update = () ->
       handleCollisions(window.ball, window.bat, window.blocks)
 
 draw = () ->
-  ctx.clearRect(0, 0, 550, 550)
+  window.ctx.clearRect(0, 0, 550, 550)
   window.bat.draw()
   window.ball.draw()
   block.draw() for block in window.blocks
