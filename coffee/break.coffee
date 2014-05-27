@@ -1,6 +1,15 @@
 # Coffee Break source code
 # by Gabiel Ruiz
 #################
+# sounds
+#################
+window.batSound = new Audio('sounds/bat.wav')
+window.blockSound = new Audio('sounds/block.wav')
+window.deathSound = new Audio('sounds/death.wav')
+window.startSound = new Audio('sounds/start.wav')
+window.wallSound = new Audio('sounds/wall.wav')
+window.winSound = new Audio('sounds/win.wav')
+#################
 # classes
 #################
 class Bat
@@ -51,6 +60,8 @@ class Ball
       @centerY += @ySpeed
 
   die: ->
+    window.deathSound.play()
+    window.deathSound = new Audio('sounds/death.wav')
     @dead = true
     @xSpeed = 0
     @ySpeed = 0
@@ -66,6 +77,8 @@ class Block
 
   die: ->
     @destroyed = true
+    window.blockSound.play()
+    window.blockSound = new Audio('sounds/block.wav')
 
   draw: ->
     if @destroyed == false
@@ -103,6 +116,8 @@ ballHitsBat = (b, bat) ->
       b.direction = "ru"
     else if b.direction == "ld"
       b.direction = "lu"
+    window.batSound.play()
+    window.batSound = new Audio('sounds/bat.wav')
 
 ballHitsBlock = (b, block) ->
   if !block.destroyed
@@ -206,12 +221,17 @@ $('#game').click (e) ->
     document.getElementById('lifecount').innerHTML = window.LIVES
     document.getElementById('levelcount').innerHTML = window.LEVEL
     document.getElementById('message').innerHTML = ''
+    window.startSound.play()
+    window.startSound = new Audio('sounds/start.wav')
+
   else
     if window.ROUND_START == false
       window.ROUND_START = true
       document.getElementById('lifecount').innerHTML = window.LIVES
       document.getElementById('levelcount').innerHTML = window.LEVEL
       document.getElementById('message').innerHTML = ''
+      window.startSound.play()
+      window.startSound = new Audio('sounds/start.wav')
 
 $('#gamebox').mousemove (e) ->
   x = e.pageX - rect.left + 80
@@ -244,6 +264,8 @@ update = () ->
       window.LEVEL += 1
       document.getElementById('levelcount').innerHTML = window.LEVEL
       document.getElementById('message').innerHTML = "Moving to Level " + window.LEVEL + "!"
+      window.winSound.play()
+      window.winSound = new Audio('sounds/win.wav')
 
     if window.ROUND_START == false
       window.ball.dead = false

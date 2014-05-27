@@ -2,6 +2,18 @@
 (function() {
   var $, Ball, Bat, Block, FPS, ballHitsBat, ballHitsBlock, ballOnEdge, canvas, ctx, draw, gameLoop, handleCollisions, initializeBlocks, rect, update;
 
+  window.batSound = new Audio('sounds/bat.wav');
+
+  window.blockSound = new Audio('sounds/block.wav');
+
+  window.deathSound = new Audio('sounds/death.wav');
+
+  window.startSound = new Audio('sounds/start.wav');
+
+  window.wallSound = new Audio('sounds/wall.wav');
+
+  window.winSound = new Audio('sounds/win.wav');
+
   Bat = (function() {
     function Bat() {
       this.width = 90;
@@ -60,6 +72,8 @@
     };
 
     Ball.prototype.die = function() {
+      window.deathSound.play();
+      window.deathSound = new Audio('sounds/death.wav');
       this.dead = true;
       this.xSpeed = 0;
       return this.ySpeed = 0;
@@ -80,7 +94,9 @@
     }
 
     Block.prototype.die = function() {
-      return this.destroyed = true;
+      this.destroyed = true;
+      window.blockSound.play();
+      return window.blockSound = new Audio('sounds/block.wav');
     };
 
     Block.prototype.draw = function() {
@@ -128,10 +144,12 @@
     var _ref, _ref1;
     if (((bat.posX < (_ref = b.centerX) && _ref < bat.posX + bat.width)) && ((bat.posY < (_ref1 = b.centerY + b.radius) && _ref1 < bat.posY + bat.height))) {
       if (b.direction === "rd") {
-        return b.direction = "ru";
+        b.direction = "ru";
       } else if (b.direction === "ld") {
-        return b.direction = "lu";
+        b.direction = "lu";
       }
+      window.batSound.play();
+      return window.batSound = new Audio('sounds/bat.wav');
     }
   };
 
@@ -259,13 +277,17 @@
       window.ROUND_START = true;
       document.getElementById('lifecount').innerHTML = window.LIVES;
       document.getElementById('levelcount').innerHTML = window.LEVEL;
-      return document.getElementById('message').innerHTML = '';
+      document.getElementById('message').innerHTML = '';
+      window.startSound.play();
+      return window.startSound = new Audio('sounds/start.wav');
     } else {
       if (window.ROUND_START === false) {
         window.ROUND_START = true;
         document.getElementById('lifecount').innerHTML = window.LIVES;
         document.getElementById('levelcount').innerHTML = window.LEVEL;
-        return document.getElementById('message').innerHTML = '';
+        document.getElementById('message').innerHTML = '';
+        window.startSound.play();
+        return window.startSound = new Audio('sounds/start.wav');
       }
     }
   });
@@ -305,6 +327,8 @@
         window.LEVEL += 1;
         document.getElementById('levelcount').innerHTML = window.LEVEL;
         document.getElementById('message').innerHTML = "Moving to Level " + window.LEVEL + "!";
+        window.winSound.play();
+        window.winSound = new Audio('sounds/win.wav');
       }
       if (window.ROUND_START === false) {
         window.ball.dead = false;
